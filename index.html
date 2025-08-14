@@ -227,12 +227,13 @@
   appId: "1:483362950365:web:206ddd6b67b7f091fa9f34",
   measurementId: "G-0R1RQFXPM6"
 };
-
+        
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'everyday-challenge-app';
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const analytics = getAnalytics(app);
 
         // --- DOM 요소 ---
         const passwordScreen = document.getElementById('password-screen');
@@ -720,4 +721,5 @@
     </script>
 </body>
 </html>
+
 
