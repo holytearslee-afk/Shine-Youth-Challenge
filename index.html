@@ -218,7 +218,16 @@
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, writeBatch, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase 설정 ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
+        const firebaseConfig = {
+  apiKey: "AIzaSyAKuOgJpfEJuVRAptK0qyWmLICLoGjQ_O8",
+  authDomain: "shine-youth-challenge-e4163.firebaseapp.com",
+  projectId: "shine-youth-challenge-e4163",
+  storageBucket: "shine-youth-challenge-e4163.firebasestorage.app",
+  messagingSenderId: "483362950365",
+  appId: "1:483362950365:web:206ddd6b67b7f091fa9f34",
+  measurementId: "G-0R1RQFXPM6"
+};
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'everyday-challenge-app';
 
         const app = initializeApp(firebaseConfig);
@@ -711,3 +720,4 @@
     </script>
 </body>
 </html>
+
