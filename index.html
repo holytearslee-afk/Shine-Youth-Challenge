@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everyday Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* 커스텀 스크롤바 (선택 사항) */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .password-dot {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #4a5568;
+            border-radius: 50%;
+            margin: 0 0.25rem;
+        }
+        .password-dot.filled {
+            background-color: #4a5568;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- 비밀번호 입력 화면 -->
+    <div id="password-screen" class="fixed inset-0 bg-gray-800 bg-opacity-95 flex flex-col items-center justify-center z-50">
+        <h1 class="text-3xl font-bold text-white mb-4">Everyday Challenge</h1>
+        <p class="text-white mb-6">비밀번호를 입력하세요</p>
+        <div id="password-display" class="flex mb-4">
+             <!-- 비밀번호 점 표시 -->
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">1</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">2</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">3</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">4</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">5</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">6</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">7</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">8</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">9</button>
+            <button id="password-clear" class="text-xl bg-gray-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">C</button>
+            <button class="password-btn text-2xl bg-gray-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">0</button>
+            <button id="password-backspace" class="text-xl bg-gray-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">⌫</button>
+        </div>
+        <p id="password-error" class="text-red-400 mt-4 hidden">비밀번호가 틀렸습니다.</p>
+    </div>
+
+    <!-- 메인 앱 컨텐츠 -->
+    <div id="app-content" class="hidden max-w-lg mx-auto bg-white min-h-screen shadow-2xl">
+        <header class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Everyday Challenge</h1>
+            <button id="admin-menu-btn" class="p-2 rounded-full hover:bg-indigo-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </header>
+
+        <main class="p-4">
+            <!-- 사용자 추가 -->
+            <div id="user-login-section" class="mb-6 bg-gray-50 p-4 rounded-lg shadow">
+                <p class="text-center font-semibold mb-2">본인 이름을 선택하거나 새로 추가하세요.</p>
+                <div class="flex items-center space-x-2">
+                    <select id="user-select" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">-- 사용자 선택 --</option>
+                    </select>
+                    <button id="login-btn" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 font-semibold">선택</button>
+                </div>
+                <div class="mt-4 flex items-center space-x-2">
+                    <input type="text" id="new-user-name" placeholder="새 사용자 이름" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <button id="add-user-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 font-semibold">추가</button>
+                </div>
+            </div>
+            
+            <!-- 운동 기록 섹션 (로그인 후 표시) -->
+            <div id="challenge-section" class="hidden">
+                 <div class="mb-6 bg-gray-50 p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-xl font-bold text-gray-700">오늘의 챌린지 (<span id="current-user-name" class="text-indigo-600"></span>)</h2>
+                        <button id="logout-btn" class="text-sm text-gray-500 hover:text-gray-800">로그아웃</button>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">목표 점수: <span id="goal-score-display" class="font-bold">20</span>점</p>
+                    
+                    <div class="space-y-3">
+                        <!-- 운동 항목 -->
+                        <div class="grid grid-cols-5 items-center gap-2">
+                            <label class="col-span-2 font-semibold">스쿼트</label>
+                            <input type="number" data-exercise="squat" class="exercise-input col-span-2 p-1 border rounded-md text-center" min="0">
+                            <span class="text-gray-500 text-sm">x 1점</span>
+                        </div>
+                        <div class="grid grid-cols-5 items-center gap-2">
+                            <label class="col-span-2 font-semibold">크런치</label>
+                            <input type="number" data-exercise="crunch" class="exercise-input col-span-2 p-1 border rounded-md text-center" min="0">
+                            <span class="text-gray-500 text-sm">x 1점</span>
+                        </div>
+                        <div class="grid grid-cols-5 items-center gap-2">
+                            <label class="col-span-2 font-semibold">런지</label>
+                            <input type="number" data-exercise="lunge" class="exercise-input col-span-2 p-1 border rounded-md text-center" min="0">
+                            <span class="text-gray-500 text-sm">x 0.5점</span>
+                        </div>
+                        <div class="grid grid-cols-5 items-center gap-2">
+                            <label class="col-span-2 font-semibold">푸쉬업</label>
+                            <input type="number" data-exercise="pushup" class="exercise-input col-span-2 p-1 border rounded-md text-center" min="0">
+                            <span class="text-gray-500 text-sm">x 1점</span>
+                        </div>
+                         <div class="grid grid-cols-5 items-center gap-2">
+                            <label class="col-span-2 font-semibold">버피 테스트</label>
+                            <input type="number" data-exercise="burpee" class="exercise-input col-span-2 p-1 border rounded-md text-center" min="0">
+                            <span class="text-gray-500 text-sm">x 5점</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-right">
+                        <p class="text-lg font-bold">총 점수: <span id="total-score">0</span></p>
+                    </div>
+
+                    <!-- 모두의 현황 보기 버튼 -->
+                    <div class="mt-6">
+                        <button id="show-status-btn" class="w-full bg-teal-500 text-white py-2 rounded-md hover:bg-teal-600 font-semibold shadow">모두의 현황 보기</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 현황판 컨테이너 (로그인 후 버튼 클릭 시 표시) -->
+            <div id="status-boards-container" class="hidden">
+                <!-- 일일 완료 현황 -->
+                <div class="mb-6 bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-gray-700 mb-3">오늘 완료 현황</h2>
+                    <div id="daily-status" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+
+                <!-- 주간 기록 -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-xl font-bold text-gray-700 mb-3">주간 기록 (토요일 자정 초기화)</h2>
+                    <div id="weekly-record" class="space-y-2">
+                        <!-- 동적 생성 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 관리자 메뉴 모달 -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-30">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-md">
+            <div id="admin-password-section">
+                <h3 class="text-xl font-bold mb-4">관리자 인증</h3>
+                <p class="text-gray-600 mb-4">관리자 비밀번호를 입력하세요.</p>
+                <input type="password" id="admin-password-input" class="w-full p-2 border rounded-md mb-4" placeholder="****">
+                <button id="admin-login-btn" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">인증</button>
+                <p id="admin-password-error" class="text-red-500 mt-2 hidden">비밀번호가 틀렸습니다.</p>
+                 <button id="admin-modal-close-btn" class="w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400 mt-2">닫기</button>
+            </div>
+            <div id="admin-controls-section" class="hidden">
+                <h3 class="text-xl font-bold mb-4">관리자 메뉴</h3>
+                <!-- 목표 점수 설정 -->
+                <div class="mb-4">
+                    <label for="goal-score-input" class="block font-semibold mb-1">목표 점수 설정</label>
+                    <div class="flex space-x-2">
+                        <input type="number" id="goal-score-input" class="w-full p-2 border rounded-md" min="1">
+                        <button id="set-goal-score-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">저장</button>
+                    </div>
+                </div>
+                <!-- 멤버 삭제 -->
+                <div class="mb-4">
+                    <label for="delete-user-select" class="block font-semibold mb-1">멤버 삭제</label>
+                     <div class="flex space-x-2">
+                        <select id="delete-user-select" class="w-full p-2 border rounded-md">
+                            <!-- 멤버 목록 동적 생성 -->
+                        </select>
+                        <button id="delete-user-btn" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">삭제</button>
+                    </div>
+                </div>
+                <!-- 데이터 초기화 -->
+                <div>
+                    <label class="block font-semibold mb-1">전체 데이터 초기화</label>
+                    <button id="reset-all-data-btn" class="w-full bg-red-700 text-white py-2 rounded-md hover:bg-red-800">모든 기록 초기화</button>
+                    <p class="text-xs text-gray-500 mt-1">주의: 모든 사용자와 기록이 영구적으로 삭제됩니다.</p>
+                </div>
+                 <button id="admin-controls-close-btn" class="w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400 mt-4">닫기</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 루틴 완료 팝업 -->
+    <div id="complete-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40" onclick="this.classList.add('hidden')">
+        <div class="bg-white p-10 rounded-lg shadow-2xl text-center">
+            <p class="text-3xl font-bold text-yellow-500 animate-pulse">🎉 루틴 완료! 🎉</p>
+            <p class="mt-4 text-gray-700">오늘의 챌린지를 성공하셨습니다!</p>
+            <p class="mt-2 text-sm text-gray-500">(탭하여 닫기)</p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase SDK 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, writeBatch, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase 설정 ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'everyday-challenge-app';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- DOM 요소 ---
+        const passwordScreen = document.getElementById('password-screen');
+        const appContent = document.getElementById('app-content');
+        const passwordDisplay = document.getElementById('password-display');
+        const passwordError = document.getElementById('password-error');
+        const passwordBtns = document.querySelectorAll('.password-btn');
+        const passwordClearBtn = document.getElementById('password-clear');
+        const passwordBackspaceBtn = document.getElementById('password-backspace');
+
+        const userLoginSection = document.getElementById('user-login-section');
+        const challengeSection = document.getElementById('challenge-section');
+        const userSelect = document.getElementById('user-select');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const newUserInput = document.getElementById('new-user-name');
+        const addUserBtn = document.getElementById('add-user-btn');
+        const currentUserNameSpan = document.getElementById('current-user-name');
+        
+        const exerciseInputs = document.querySelectorAll('.exercise-input');
+        const totalScoreSpan = document.getElementById('total-score');
+        const goalScoreDisplay = document.getElementById('goal-score-display');
+        const completePopup = document.getElementById('complete-popup');
+
+        const showStatusBtn = document.getElementById('show-status-btn'); // 새로 추가
+        const statusBoardsContainer = document.getElementById('status-boards-container'); // 새로 추가
+        const dailyStatusDiv = document.getElementById('daily-status');
+        const weeklyRecordDiv = document.getElementById('weekly-record');
+
+        const adminMenuBtn = document.getElementById('admin-menu-btn');
+        const adminModal = document.getElementById('admin-modal');
+        const adminPasswordSection = document.getElementById('admin-password-section');
+        const adminControlsSection = document.getElementById('admin-controls-section');
+        const adminPasswordInput = document.getElementById('admin-password-input');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminPasswordError = document.getElementById('admin-password-error');
+        const adminModalCloseBtn = document.getElementById('admin-modal-close-btn');
+        const adminControlsCloseBtn = document.getElementById('admin-controls-close-btn');
+        
+        const goalScoreInput = document.getElementById('goal-score-input');
+        const setGoalScoreBtn = document.getElementById('set-goal-score-btn');
+        const deleteUserSelect = document.getElementById('delete-user-select');
+        const deleteUserBtn = document.getElementById('delete-user-btn');
+        const resetAllDataBtn = document.getElementById('reset-all-data-btn');
+
+        // --- 상태 변수 ---
+        let currentPassword = '';
+        const APP_PASSWORD = '0920';
+        const ADMIN_PASSWORD = '4655';
+        let currentUserId = null;
+        let goalScore = 20;
+        let allUsers = [];
+        let unsubscribeUsers = null;
+        let unsubscribeSettings = null;
+
+        const exerciseRatios = {
+            squat: 1,
+            crunch: 1,
+            lunge: 0.5,
+            pushup: 1,
+            burpee: 5
+        };
+
+        // --- 유틸리티 함수 ---
+        const getTodayDateString = () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const checkAndResetWeeklyData = async () => {
+            const today = new Date();
+            // 토요일은 6, 일요일은 0. 토요일 자정에 리셋되려면 일요일 00:00에 체크
+            if (today.getDay() === 0) { 
+                const settingsRef = doc(db, `artifacts/${appId}/public/data/settings/main`);
+                const settingsSnap = await getDoc(settingsRef);
+                const lastReset = settingsSnap.exists() ? settingsSnap.data().lastWeeklyReset : null;
+                const todayStr = getTodayDateString();
+
+                if (lastReset !== todayStr) {
+                    console.log("주간 데이터를 초기화합니다.");
+                    const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+                    const usersSnapshot = await getDocs(usersRef);
+                    const batch = writeBatch(db);
+                    usersSnapshot.forEach(userDoc => {
+                        const userRef = doc(db, `artifacts/${appId}/public/data/users`, userDoc.id);
+                        batch.update(userRef, { weeklyCompletions: 0 });
+                    });
+                    await batch.commit();
+                    await setDoc(settingsRef, { lastWeeklyReset: todayStr }, { merge: true });
+                }
+            }
+        };
+
+        // --- 비밀번호 화면 로직 ---
+        const updatePasswordDisplay = () => {
+            passwordDisplay.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'password-dot';
+                if (i < currentPassword.length) {
+                    dot.classList.add('filled');
+                }
+                passwordDisplay.appendChild(dot);
+            }
+        };
+
+        const handlePasswordInput = (num) => {
+            if (currentPassword.length < 4) {
+                currentPassword += num;
+                updatePasswordDisplay();
+                if (currentPassword.length === 4) {
+                    checkPassword();
+                }
+            }
+        };
+
+        const checkPassword = () => {
+            if (currentPassword === APP_PASSWORD) {
+                passwordScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                main();
+            } else {
+                passwordError.classList.remove('hidden');
+                setTimeout(() => {
+                    currentPassword = '';
+                    updatePasswordDisplay();
+                    passwordError.classList.add('hidden');
+                }, 1000);
+            }
+        };
+        
+        passwordBtns.forEach(btn => {
+            btn.addEventListener('click', () => handlePasswordInput(btn.textContent));
+        });
+        
+        passwordClearBtn.addEventListener('click', () => {
+            currentPassword = '';
+            updatePasswordDisplay();
+        });
+
+        passwordBackspaceBtn.addEventListener('click', () => {
+            currentPassword = currentPassword.slice(0, -1);
+            updatePasswordDisplay();
+        });
+        
+        updatePasswordDisplay();
+
+
+        // --- 메인 앱 로직 ---
+        const main = async () => {
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    console.log("인증 성공:", user.uid);
+                    loadSettings();
+                    loadUsers();
+                    checkAndResetWeeklyData();
+                } else {
+                    console.log("인증된 사용자 없음");
+                }
+            });
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Firebase 인증 오류:", error);
+            }
+        };
+
+        const loadSettings = () => {
+            const settingsRef = doc(db, `artifacts/${appId}/public/data/settings/main`);
+            if (unsubscribeSettings) unsubscribeSettings();
+            unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    goalScore = docSnap.data().goalScore || 20;
+                } else {
+                    // 기본값 설정
+                    setDoc(doc(db, `artifacts/${appId}/public/data/settings/main`), { goalScore: 20 });
+                    goalScore = 20;
+                }
+                goalScoreDisplay.textContent = goalScore;
+                goalScoreInput.value = goalScore;
+            });
+        };
+
+        const loadUsers = () => {
+            const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+            if (unsubscribeUsers) unsubscribeUsers();
+            unsubscribeUsers = onSnapshot(usersRef, (snapshot) => {
+                allUsers = [];
+                snapshot.forEach(doc => {
+                    allUsers.push({ id: doc.id, ...doc.data() });
+                });
+                allUsers.sort((a, b) => a.name.localeCompare(b.name));
+                updateUserUI();
+            });
+        };
+
+        const updateUserUI = () => {
+            // 사용자 선택 드롭다운 업데이트
+            const previousUser = userSelect.value;
+            userSelect.innerHTML = '<option value="">-- 사용자 선택 --</option>';
+            deleteUserSelect.innerHTML = '<option value="">-- 멤버 선택 --</option>';
+            
+            allUsers.forEach(user => {
+                const option = new Option(user.name, user.id);
+                userSelect.add(option.cloneNode(true));
+                deleteUserSelect.add(option);
+            });
+            userSelect.value = previousUser;
+
+            // 현황판 업데이트 (데이터는 항상 최신으로 유지)
+            updateStatusBoards();
+        };
+        
+        const updateStatusBoards = () => {
+            const today = getTodayDateString();
+            dailyStatusDiv.innerHTML = '';
+            weeklyRecordDiv.innerHTML = '';
+
+            if (allUsers.length === 0) {
+                dailyStatusDiv.innerHTML = '<p class="text-gray-500">등록된 사용자가 없습니다.</p>';
+                weeklyRecordDiv.innerHTML = '<p class="text-gray-500">등록된 사용자가 없습니다.</p>';
+                return;
+            }
+
+            allUsers.forEach(user => {
+                const dailyProgress = user.progress && user.progress[today];
+                const isCompletedToday = dailyProgress && dailyProgress.totalScore >= goalScore;
+
+                // 일일 현황
+                const dailyDiv = document.createElement('div');
+                dailyDiv.className = 'flex justify-between items-center p-2 rounded-md';
+                dailyDiv.innerHTML = `
+                    <span class="font-medium">${user.name}</span>
+                    <span class="font-bold ${isCompletedToday ? 'text-green-500' : 'text-red-500'}">
+                        ${isCompletedToday ? '완료 👍' : '진행중...'}
+                    </span>
+                `;
+                dailyStatusDiv.appendChild(dailyDiv);
+
+                // 주간 기록
+                const weeklyDiv = document.createElement('div');
+                weeklyDiv.className = 'flex justify-between items-center p-2 rounded-md';
+                weeklyDiv.innerHTML = `
+                    <span class="font-medium">${user.name}</span>
+                    <span class="font-bold text-indigo-600">
+                        ${user.weeklyCompletions || 0} 회 완료
+                    </span>
+                `;
+                weeklyRecordDiv.appendChild(weeklyDiv);
+            });
+        };
+
+
+        const calculateTotalScore = () => {
+            let total = 0;
+            exerciseInputs.forEach(input => {
+                const exercise = input.dataset.exercise;
+                const count = parseInt(input.value) || 0;
+                if (count > 0) {
+                    total += count * exerciseRatios[exercise];
+                }
+            });
+            return total;
+        };
+
+        const updateProgress = async () => {
+            if (!currentUserId) return;
+
+            const today = getTodayDateString();
+            const userRef = doc(db, `artifacts/${appId}/public/data/users`, currentUserId);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) return;
+
+            const userData = userSnap.data();
+            const oldProgress = userData.progress && userData.progress[today];
+            const wasCompletedBefore = oldProgress && oldProgress.totalScore >= goalScore;
+
+            const newTotalScore = calculateTotalScore();
+            totalScoreSpan.textContent = newTotalScore;
+
+            const progressData = {
+                totalScore: newTotalScore,
+                exercises: {}
+            };
+            exerciseInputs.forEach(input => {
+                progressData.exercises[input.dataset.exercise] = parseInt(input.value) || 0;
+            });
+            
+            await updateDoc(userRef, {
+                [`progress.${today}`]: progressData
+            });
+
+            const isCompletedNow = newTotalScore >= goalScore;
+            if (isCompletedNow && !wasCompletedBefore) {
+                // 새로 완료한 경우
+                const newWeeklyCompletions = (userData.weeklyCompletions || 0) + 1;
+                await updateDoc(userRef, {
+                    weeklyCompletions: newWeeklyCompletions
+                });
+                completePopup.classList.remove('hidden');
+            } else if (!isCompletedNow && wasCompletedBefore) {
+                // 완료 상태에서 미완료로 변경된 경우
+                const newWeeklyCompletions = Math.max(0, (userData.weeklyCompletions || 1) - 1);
+                await updateDoc(userRef, {
+                    weeklyCompletions: newWeeklyCompletions
+                });
+            }
+        };
+
+        // --- 이벤트 리스너 ---
+        loginBtn.addEventListener('click', () => {
+            const selectedUserId = userSelect.value;
+            if (selectedUserId) {
+                currentUserId = selectedUserId;
+                const user = allUsers.find(u => u.id === currentUserId);
+                currentUserNameSpan.textContent = user.name;
+                
+                userLoginSection.classList.add('hidden');
+                challengeSection.classList.remove('hidden');
+                statusBoardsContainer.classList.add('hidden'); // 로그인 시 현황판 숨기기
+
+                // 저장된 오늘 운동 기록 불러오기
+                const today = getTodayDateString();
+                const todayProgress = user.progress && user.progress[today];
+                if (todayProgress) {
+                    exerciseInputs.forEach(input => {
+                        const exercise = input.dataset.exercise;
+                        input.value = todayProgress.exercises[exercise] || 0;
+                    });
+                    totalScoreSpan.textContent = todayProgress.totalScore || 0;
+                } else {
+                     exerciseInputs.forEach(input => { input.value = ''; });
+                     totalScoreSpan.textContent = 0;
+                }
+            } else {
+                alert('사용자를 선택하세요.');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            currentUserId = null;
+            userLoginSection.classList.remove('hidden');
+            challengeSection.classList.add('hidden');
+            statusBoardsContainer.classList.add('hidden'); // 로그아웃 시 현황판 숨기기
+            userSelect.value = '';
+        });
+
+        addUserBtn.addEventListener('click', async () => {
+            const name = newUserInput.value.trim();
+            if (name) {
+                if (allUsers.some(user => user.name === name)) {
+                    alert('이미 존재하는 이름입니다.');
+                    return;
+                }
+                try {
+                    const newUserRef = doc(collection(db, `artifacts/${appId}/public/data/users`));
+                    await setDoc(newUserRef, {
+                        name: name,
+                        createdAt: new Date(),
+                        progress: {},
+                        weeklyCompletions: 0
+                    });
+                    newUserInput.value = '';
+                    alert(`${name}님이 추가되었습니다.`);
+                } catch (error) {
+                    console.error("사용자 추가 오류:", error);
+                    alert("사용자 추가에 실패했습니다.");
+                }
+            } else {
+                alert('이름을 입력하세요.');
+            }
+        });
+
+        exerciseInputs.forEach(input => {
+            input.addEventListener('input', updateProgress);
+        });
+
+        // '모두의 현황 보기' 버튼 클릭 이벤트
+        showStatusBtn.addEventListener('click', () => {
+            statusBoardsContainer.classList.toggle('hidden');
+        });
+
+        // --- 관리자 메뉴 로직 ---
+        adminMenuBtn.addEventListener('click', () => {
+            adminModal.classList.remove('hidden');
+            adminPasswordSection.classList.remove('hidden');
+            adminControlsSection.classList.add('hidden');
+            adminPasswordInput.value = '';
+            adminPasswordError.classList.add('hidden');
+        });
+        
+        const closeAdminModal = () => {
+            adminModal.classList.add('hidden');
+        };
+
+        adminModalCloseBtn.addEventListener('click', closeAdminModal);
+        adminControlsCloseBtn.addEventListener('click', closeAdminModal);
+
+        adminLoginBtn.addEventListener('click', () => {
+            if (adminPasswordInput.value === ADMIN_PASSWORD) {
+                adminPasswordSection.classList.add('hidden');
+                adminControlsSection.classList.remove('hidden');
+            } else {
+                adminPasswordError.classList.remove('hidden');
+                setTimeout(() => adminPasswordError.classList.add('hidden'), 2000);
+            }
+        });
+
+        setGoalScoreBtn.addEventListener('click', async () => {
+            const newGoal = parseInt(goalScoreInput.value);
+            if (newGoal && newGoal > 0) {
+                try {
+                    const settingsRef = doc(db, `artifacts/${appId}/public/data/settings/main`);
+                    await setDoc(settingsRef, { goalScore: newGoal }, { merge: true });
+                    alert(`목표 점수가 ${newGoal}점으로 변경되었습니다.`);
+                    closeAdminModal();
+                } catch (error) {
+                    console.error("목표 점수 변경 오류:", error);
+                    alert("오류가 발생했습니다.");
+                }
+            } else {
+                alert("유효한 숫자를 입력하세요.");
+            }
+        });
+
+        deleteUserBtn.addEventListener('click', async () => {
+            const userIdToDelete = deleteUserSelect.value;
+            const userName = deleteUserSelect.options[deleteUserSelect.selectedIndex].text;
+            if (userIdToDelete) {
+                if (confirm(`${userName}님을 정말로 삭제하시겠습니까? 모든 기록이 사라집니다.`)) {
+                    try {
+                        await deleteDoc(doc(db, `artifacts/${appId}/public/data/users`, userIdToDelete));
+                        alert(`${userName}님이 삭제되었습니다.`);
+                        if (currentUserId === userIdToDelete) {
+                            logoutBtn.click();
+                        }
+                        closeAdminModal();
+                    } catch (error) {
+                         console.error("사용자 삭제 오류:", error);
+                         alert("사용자 삭제에 실패했습니다.");
+                    }
+                }
+            } else {
+                alert("삭제할 멤버를 선택하세요.");
+            }
+        });
+
+        resetAllDataBtn.addEventListener('click', async () => {
+            if (confirm("정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+                try {
+                    // users 컬렉션 삭제
+                    const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+                    const usersSnapshot = await getDocs(usersRef);
+                    const batch1 = writeBatch(db);
+                    usersSnapshot.forEach(doc => {
+                        batch1.delete(doc.ref);
+                    });
+                    await batch1.commit();
+
+                    // settings 문서 삭제
+                    const settingsRef = doc(db, `artifacts/${appId}/public/data/settings/main`);
+                    await deleteDoc(settingsRef);
+
+                    alert("모든 데이터가 초기화되었습니다.");
+                    // UI 초기화
+                    logoutBtn.click();
+                    loadSettings(); // 기본 설정 다시 로드
+                    closeAdminModal();
+
+                } catch (error) {
+                    console.error("데이터 초기화 오류:", error);
+                    alert("데이터 초기화에 실패했습니다.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
